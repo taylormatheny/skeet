@@ -44,9 +44,6 @@
     <ClCompile Include="bullet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="driver.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="flyingObjects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -60,6 +57,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="uiDraw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="driver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
