@@ -116,9 +116,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bird.cpp" />
+    <ClCompile Include="bullet.cpp" />
+    <ClCompile Include="driver.cpp" />
+    <ClCompile Include="flyingObjects.cpp" />
+    <ClCompile Include="game.cpp" />
+    <ClCompile Include="point.cpp" />
+    <ClCompile Include="rifle.cpp" />
+    <ClCompile Include="uiDraw.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bird.h" />
+    <ClInclude Include="bullet.h" />
+    <ClInclude Include="flyingObjects.h" />
+    <ClInclude Include="game.h" />
+    <ClInclude Include="point.h" />
+    <ClInclude Include="rifle.h" />
+    <ClInclude Include="uiDraw.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
