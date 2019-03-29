@@ -36,8 +36,8 @@ void main()
 	server_address.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
 
 	int8 buffer[SOCKET_BUFFER_SIZE];
-	int32 player_1;
-	int32 player_2;
+	int32 player_x;
+	int32 player_y;
 
 	printf("type w, a, s, or d to move, q to quit\n");
 	bool32 is_running = 1;
@@ -72,15 +72,15 @@ void main()
 		// grab data from packet
 		int32 read_index = 0;
 
-		memcpy(&player_1, &buffer[read_index], sizeof(player_1));
-		read_index += sizeof(player_1);
+		memcpy(&player_x, &buffer[read_index], sizeof(player_x));
+		read_index += sizeof(player_x);
 
-		memcpy(&player_2, &buffer[read_index], sizeof(player_2));
-		read_index += sizeof(player_2);
+		memcpy(&player_y, &buffer[read_index], sizeof(player_y));
+		read_index += sizeof(player_y);
 
 		memcpy(&is_running, &buffer[read_index], sizeof(is_running));
 
-		printf("x:%d, y:%d, is_running:%d\n", player_1, player_2, is_running);
+		printf("x:%d, y:%d, is_running:%d\n", player_x, player_y, is_running);
 	}
 
 	printf("done");
