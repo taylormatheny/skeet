@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <winsock2.h>
+#include <WinSock2.h>
 #pragma comment(lib, "WS2_32")
 #pragma warning(disable:4996)
 

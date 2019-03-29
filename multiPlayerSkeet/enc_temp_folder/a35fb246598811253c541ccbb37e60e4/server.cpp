@@ -4,11 +4,6 @@
 
 typedef unsigned int unit32;
 typedef unsigned short unit16;
-typedef unsigned char unit8;
-typedef int int32;
-typedef short int16;
-typedef char int8;
-typedef int bool32;
 
 const unit16 PORT = 9999;
 const unit32 SOCKET_BUFFER_SIZE = 1024;
@@ -61,16 +56,15 @@ void main()
 		return;
 	}
 
-	// This is our coude to create buffers for two players so we can start receiving
-	// packets
-	
-	
-	/*char buffer[SOCKET_BUFFER_SIZE];
+	// now we start receiving packets
+	// we want a small buffer size so we can send packets back and forth more often
+	// because we are using UDP, we can have all clients send to the same socket
+	char buffer[SOCKET_BUFFER_SIZE];
 	int flags = 0;
 	SOCKADDR_IN from;
 	int from_size = sizeof(from);
 	int bytes_received = recvfrom(sock, buffer, SOCKET_BUFFER_SIZE, flags, (SOCKADDR*)&from,
-		&from_size);*/
+		&from_size);
 
 	// if we are unable to receive from the server
 	if (bytes_received == SOCKET_ERROR)
