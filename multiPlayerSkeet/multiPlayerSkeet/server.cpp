@@ -14,6 +14,8 @@ void main()
 	WORD winsock_version = 0x202;
 	WSADATA winsock_data;
 
+	printf("Hello Server!\n");
+
 	// make sure winsock started correctly
 	if (WSAStartup(winsock_version, &winsock_data))
 	{
@@ -87,5 +89,6 @@ void main()
 
 	printf("done");
 
+	// Do we need WSACleanup() ?
 	return;
 }
