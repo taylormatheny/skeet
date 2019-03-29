@@ -59,7 +59,7 @@ void main()
 
 		// wait for reply
 		flags = 0;
-		SOCKADD_IN from;
+		SOCKADDR_IN from;
 		int from_size = sizeof(from);
 		int bytes_received = recvfrom(sock, buffer, SOCKET_BUFFER_SIZE, flags, (SOCKADDR*)&from, &from_size);
 

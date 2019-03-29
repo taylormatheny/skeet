@@ -56,15 +56,15 @@ void main()
 	// This is our coude to create buffers for two players so we can start receiving
 	// packets
 	int8 buffer[SOCKET_BUFFER_SIZE];
-	int32 player_1 = 0;
-	int32 player_2 = 0;
+	int32 player_x = 0;
+	int32 player_y = 0;
 
 	bool32 is_running = 1;
 
 	// now we start our loop to receive packets from both clients
 	while (is_running)
 	{
-		// get input packet from player
+		// get input packet for clients position
 		int flags = 0;
 		SOCKADDR_IN from;
 		int from_size = sizeof(from);
@@ -89,16 +89,16 @@ void main()
 		switch (client_input)
 		{
 		case 'w':
-			++player_2;
+			++player_y;
 			break;
 		case 'a':
-			--player_1;
+			--player_x;
 			break;
 		case 's':
-			--player_2;
+			--player_y;
 			break;
 		case 'd':
-			++player_1;
+			++player_x;
 			break;
 
 		case 'q':
@@ -114,18 +114,18 @@ void main()
 		int32 write_index = 0;
 
 		// first, we put all player 1's data into the buffer
-		memcpy(&buffer[write_index], &player_1, sizeof(player_1));
-		write_index += sizeof(player_1);
+		memcpy(&buffer[write_index], &player_x, sizeof(player_x));
+		write_index += sizeof(player_x);
 
 		// then we put all of player 2's data into the buffer
-		memcpy(&buffer[write_index], &player_2, sizeof(player_2));
-		write_index += sizeof(player_2);
+		memcpy(&buffer[write_index], &player_y, sizeof(player_y));
+		write_index += sizeof(player_y);
 
 		// then we indicate whether the server is still running
 		memcpy(&buffer[write_index], &is_running, sizeof(is_running));
 
 		// send back to client
-		int buffer_length = sizeof(player_1) + sizeof(player_2) + sizeof(is_running);
+		int buffer_length = sizeof(player_x) + sizeof(player_y) + sizeof(is_running);
 		flags = 0;
 		SOCKADDR* to = (SOCKADDR*)&from;
 		int to_length = sizeof(from);
