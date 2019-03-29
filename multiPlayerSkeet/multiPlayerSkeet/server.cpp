@@ -1,8 +1,18 @@
 #include <math.h>
 #include <WinSock2.h>
+#include <Windows.h>
 #include "variables.h"
 #include <stdio.h> // for printf
 #pragma comment(lib, "WS2_32")
+#pragma comment(lib, "winmm")
+
+static float32 time_since(LARGE_INTEGER t, LARGE_INTEGER frequency)
+{
+	LARGE_INTEGER now;
+	QueryPerformanceCounter(&now);
+
+	return float32(now.QuadPart - t.QuadPart) / float32(frequency.QuadPart);
+}
 
 
 void main()
@@ -54,11 +64,19 @@ void main()
 		return;
 	}
 
+
+	// make sure the game runs at the same speed 60hz on different devices
+	UINT sleep_granularity_ms = 1;
+	bool32 sleep_granularity_was_set = timeBeginPeriod(sleep_granularity_ms) == TIMERR_NOERROR;
+
+	LARGE_INTEGER clock_frequency;
+	QueryPerformanceFrequency(&clock_frequency);
+
 	// This is our coude to create buffers for two players so we can start receiving
 	// packets
 	int8 buffer[SOCKET_BUFFER_SIZE];
-	int32 player_x = 0;
-	int32 player_y = 0;
+	float32 player_x = 0.0f;
+	float32 player_y = 0.0f;
 	float32 player_facing = 0.0f;  // used to describe rotation
 	float32 player_speed = 0.0f;
 
@@ -67,6 +85,9 @@ void main()
 	// now we start our loop to receive packets from both clients
 	while (is_running)
 	{
+		LARGE_INTEGER tick_start_time;
+		QueryPerformanceCounter(&tick_start_time);
+
 		// get input packet for clients position
 		int flags = 0;
 		SOCKADDR_IN from;
@@ -92,7 +113,7 @@ void main()
 		// we switch the first character of the client input to the player's action
 		if (client_input & 0x1) // forward
 		{
-			player_speed += ACCELERATION;
+			player_speed += ACCELERATION * SECONDS_PER_TICK;
 			if (player_speed > MAX_SPEED)
 			{
 				player_speed = MAX_SPEED;
@@ -100,7 +121,7 @@ void main()
 		}
 		if (client_input & 0x2)  // back
 		{
-			player_speed -= ACCELERATION;
+			player_speed -= ACCELERATION * SECONDS_PER_TICK;
 			if (player_speed < 0.0f)
 			{
 				player_speed = 0.0f;
@@ -108,42 +129,58 @@ void main()
 		}
 		if (client_input & 0x4) // left
 		{
-			player_facing -= TURN_SPEED;
+			player_facing -= TURN_SPEED * SECONDS_PER_TICK;
 		}
 		if (client_input & 0x8) // right
 		{
-			player_facing += TURN_SPEED;
+			player_facing += TURN_SPEED * SECONDS_PER_TICK;
 		}
 
-		player_x += player_speed * sinf(player_facing);
-		player_y += player_speed * cosf(player_facing);
+		player_x += player_speed * SECONDS_PER_TICK * sinf(player_facing);
+		player_y += player_speed * SECONDS_PER_TICK * cosf(player_facing);
 
 		// now we create a state packet with the updated state of the game
-		int32 write_index = 0;
+		int32 bytes_written = 0;
 
 		// first, we put all player 1's data into the buffer
-		memcpy(&buffer[write_index], &player_x, sizeof(player_x));
-		write_index += sizeof(player_x);
+		memcpy(&buffer[bytes_written], &player_x, sizeof(player_x));
+		bytes_written += sizeof(player_x);
 
 		// then we put all of player 2's data into the buffer
-		memcpy(&buffer[write_index], &player_y, sizeof(player_y));
-		write_index += sizeof(player_y);
+		memcpy(&buffer[bytes_written], &player_y, sizeof(player_y));
+		bytes_written += sizeof(player_y);
 
 		// then we put the rotation in there
-		memcpy(&buffer[write_index], &player_facing, sizeof(player_facing));
-		write_index += sizeof(player_facing);
+		memcpy(&buffer[bytes_written], &player_facing, sizeof(player_facing));
+		bytes_written += sizeof(player_facing);
 
 		// send back to client
-		int buffer_length = sizeof(player_x) + sizeof(player_y) + sizeof(is_running);
+		//int buffer_length = sizeof(player_x) + sizeof(player_y) + sizeof(is_running);
 		flags = 0;
 		SOCKADDR* to = (SOCKADDR*)&from;
 		int to_length = sizeof(from);
 		
 		// if we had an error sending data
-		if (sendto(sock, buffer, buffer_length, flags, to, to_length) == SOCKET_ERROR)
+		if (sendto(sock, buffer, bytes_written, flags, to, to_length) == SOCKET_ERROR)
 		{
 			printf("sendto failed: %d", WSAGetLastError());
 			return;
+		}
+
+		float32 time_taken_s = time_since(tick_start_time, clock_frequency);
+
+		while (time_taken_s < SECONDS_PER_TICK)
+		{
+			if (sleep_granularity_was_set)
+			{
+				DWORD time_to_wait_ms = DWORD((SECONDS_PER_TICK - time_taken_s) * 1000);
+				if (time_to_wait_ms > 0)
+				{
+					Sleep(time_to_wait_ms);
+				}
+			}
+
+			time_taken_s = time_since(tick_start_time, clock_frequency);
 		}
 	}
 
