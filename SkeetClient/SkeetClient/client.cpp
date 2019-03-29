@@ -1,17 +1,13 @@
 #include <stdio.h>
 #include <WinSock2.h>
+#include "variables.h"
 #pragma comment(lib, "WS2_32")
 #pragma warning(disable:4996)
-
-typedef unsigned int unit32;
-typedef unsigned short unit16;
-
-const unit16 PORT = 9999;
-const unit32 SOCKET_BUFFER_SIZE = 1024;
 
 void main()
 {
 
+	printf("Hello Client!\n");
 	// setting up winsocket will be the same as on the server
 	WORD winsock_version = 0x202;
 	WSADATA winsock_data;
@@ -54,5 +50,6 @@ void main()
 
 	printf("done");
 
+	// WSACleanup();
 	return;
 }

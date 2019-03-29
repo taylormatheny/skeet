@@ -1,23 +1,15 @@
 #include <WinSock2.h>
+#include "variables.h"
 #include <stdio.h> // for printf
 #pragma comment(lib, "WS2_32")
-
-typedef unsigned int unit32;
-typedef unsigned short unit16;
-typedef unsigned char unit8;
-typedef int int32;
-typedef short int16;
-typedef char int8;
-typedef int bool32;
-
-const unit16 PORT = 9999;
-const unit32 SOCKET_BUFFER_SIZE = 1024;
 
 
 void main()
 {
 	WORD winsock_version = 0x202;
 	WSADATA winsock_data;
+
+	printf("Hello Server!\n");
 
 	// make sure winsock started correctly
 	if (WSAStartup(winsock_version, &winsock_data))
@@ -148,5 +140,6 @@ void main()
 
 	printf("done");
 
+	// Do we need WSACleanup() ?
 	return;
 }
