@@ -63,32 +63,87 @@ void main()
 
 	// This is our coude to create buffers for two players so we can start receiving
 	// packets
-	
-	
-	/*char buffer[SOCKET_BUFFER_SIZE];
-	int flags = 0;
-	SOCKADDR_IN from;
-	int from_size = sizeof(from);
-	int bytes_received = recvfrom(sock, buffer, SOCKET_BUFFER_SIZE, flags, (SOCKADDR*)&from,
-		&from_size);*/
+	int8 buffer[SOCKET_BUFFER_SIZE];
+	int32 player_1 = 0;
+	int32 player_2 = 0;
 
-	// if we are unable to receive from the server
-	if (bytes_received == SOCKET_ERROR)
+	bool32 is_running = 1;
+
+	// now we start our loop to receive packets from both clients
+	while (is_running)
 	{
-		printf("recvfrom returned SOCKET_ERROR, WSAGetLastError() %d", WSAGetLastError());
-	}
-	// if we were able to receive from the server
-	else
-	{
-		// this code can be used to figure out which player a message came from
-		buffer[bytes_received] = 0;
-		printf("%d.%d.%d.%d:%d - %s",
-			from.sin_addr.S_un.S_un_b.s_b1,
-			from.sin_addr.S_un.S_un_b.s_b2,
-			from.sin_addr.S_un.S_un_b.s_b3,
-			from.sin_addr.S_un.S_un_b.s_b4,
-			from.sin_port,
-			buffer);
+		// get input packet from player
+		int flags = 0;
+		SOCKADDR_IN from;
+		int from_size = sizeof(from);
+		int bytes_received = recvfrom(sock, buffer, SOCKET_BUFFER_SIZE, flags, (SOCKADDR*)&from,
+			&from_size);
+
+		// if there is a problem while receiving
+		if (bytes_received == SOCKET_ERROR)
+		{
+			printf("recvfrom returned SOCKET_ERROR, WSAGetLastError() %d", WSAGetLastError());
+			break;
+		}
+
+		// process user input
+		char client_input = buffer[0];
+		// show which client we are reading from
+		printf("%d.%d.%d.%d:%d - %c\n", from.sin_addr.S_un.S_un_b.s_b1,
+			from.sin_addr.S_un.S_un_b.s_b2, from.sin_addr.S_un.S_un_b.s_b3,
+			from.sin_addr.S_un.S_un_b.s_b4, from.sin_port, client_input);
+
+		// we switch the first character of the client input to the player's action
+		switch (client_input)
+		{
+		case 'w':
+			++player_2;
+			break;
+		case 'a':
+			--player_1;
+			break;
+		case 's':
+			--player_2;
+			break;
+		case 'd':
+			++player_1;
+			break;
+
+		case 'q':
+			is_running = 0;
+			break;
+
+		default:
+			printf("unhandled input %c\n", client_input);
+			break;
+		}
+
+		// now we create a state packet with the updated state of the game
+		int32 write_index = 0;
+
+		// first, we put all player 1's data into the buffer
+		memcpy(&buffer[write_index], &player_1, sizeof(player_1));
+		write_index += sizeof(player_1);
+
+		// then we put all of player 2's data into the buffer
+		memcpy(&buffer[write_index], &player_2, sizeof(player_2));
+		write_index += sizeof(player_2);
+
+		// then we indicate whether the server is still running
+		memcpy(&buffer[write_index], &is_running, sizeof(is_running));
+
+		// send back to client
+		int buffer_length = sizeof(player_1) + sizeof(player_2) + sizeof(is_running);
+		flags = 0;
+		SOCKADDR* to = (SOCKADDR*)&from;
+		int to_length = sizeof(from);
+		
+		// if we had an error sending data
+		if (sendto(sock, buffer, buffer_length, flags, to, to_length) == SOCKET_ERROR)
+		{
+			printf("sendto failed: %d", WSAGetLastError());
+			return;
+		}
 	}
 
 	printf("done");
