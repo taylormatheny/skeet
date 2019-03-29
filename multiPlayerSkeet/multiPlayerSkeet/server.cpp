@@ -1,3 +1,4 @@
+#include <math.h>
 #include <WinSock2.h>
 #include "variables.h"
 #include <stdio.h> // for printf
@@ -58,6 +59,8 @@ void main()
 	int8 buffer[SOCKET_BUFFER_SIZE];
 	int32 player_x = 0;
 	int32 player_y = 0;
+	float32 player_facing = 0.0f;  // used to describe rotation
+	float32 player_speed = 0.0f;
 
 	bool32 is_running = 1;
 
@@ -79,36 +82,41 @@ void main()
 		}
 
 		// process user input
-		char client_input = buffer[0];
+		int8 client_input = buffer[0];
 		// show which client we are reading from
-		printf("%d.%d.%d.%d:%d - %c\n", from.sin_addr.S_un.S_un_b.s_b1,
+		printf("%d.%d.%d.%d:%d - %d\n", from.sin_addr.S_un.S_un_b.s_b1,
 			from.sin_addr.S_un.S_un_b.s_b2, from.sin_addr.S_un.S_un_b.s_b3,
 			from.sin_addr.S_un.S_un_b.s_b4, from.sin_port, client_input);
 
+		// we do it this way because the user can press multiple buttons at once
 		// we switch the first character of the client input to the player's action
-		switch (client_input)
+		if (client_input & 0x1) // forward
 		{
-		case 'w':
-			++player_y;
-			break;
-		case 'a':
-			--player_x;
-			break;
-		case 's':
-			--player_y;
-			break;
-		case 'd':
-			++player_x;
-			break;
-
-		case 'q':
-			is_running = 0;
-			break;
-
-		default:
-			printf("unhandled input %c\n", client_input);
-			break;
+			player_speed += ACCELERATION;
+			if (player_speed > MAX_SPEED)
+			{
+				player_speed = MAX_SPEED;
+			}
 		}
+		if (client_input & 0x2)  // back
+		{
+			player_speed -= ACCELERATION;
+			if (player_speed < 0.0f)
+			{
+				player_speed = 0.0f;
+			}
+		}
+		if (client_input & 0x4) // left
+		{
+			player_facing -= TURN_SPEED;
+		}
+		if (client_input & 0x8) // right
+		{
+			player_facing += TURN_SPEED;
+		}
+
+		player_x += player_speed * sinf(player_facing);
+		player_y += player_speed * cosf(player_facing);
 
 		// now we create a state packet with the updated state of the game
 		int32 write_index = 0;
@@ -121,8 +129,9 @@ void main()
 		memcpy(&buffer[write_index], &player_y, sizeof(player_y));
 		write_index += sizeof(player_y);
 
-		// then we indicate whether the server is still running
-		memcpy(&buffer[write_index], &is_running, sizeof(is_running));
+		// then we put the rotation in there
+		memcpy(&buffer[write_index], &player_facing, sizeof(player_facing));
+		write_index += sizeof(player_facing);
 
 		// send back to client
 		int buffer_length = sizeof(player_x) + sizeof(player_y) + sizeof(is_running);
