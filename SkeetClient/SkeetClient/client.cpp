@@ -1,13 +1,8 @@
 #include <stdio.h>
 #include <WinSock2.h>
+#include "variables.h"
 #pragma comment(lib, "WS2_32")
 #pragma warning(disable:4996)
-
-typedef unsigned int unit32;
-typedef unsigned short unit16;
-
-const unit16 PORT = 9999;
-const unit32 SOCKET_BUFFER_SIZE = 1024;
 
 void main()
 {
