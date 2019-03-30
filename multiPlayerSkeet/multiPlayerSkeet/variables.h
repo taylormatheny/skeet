@@ -17,6 +17,8 @@ const float32 ACCELERATION = 20.0f;
 const float32 MAX_SPEED = 50.0f;
 const uint32 TICKS_PER_SECOND = 60;
 const float32 SECONDS_PER_TICK = 1.0f / float32(TICKS_PER_SECOND);
+const uint16 MAX_CLIENTS = 2;
+const float32 CLIENT_TIMEOUT = 5.0f;
 
 const uint16 PORT = 9999;
 const uint32 SOCKET_BUFFER_SIZE = 1024;
