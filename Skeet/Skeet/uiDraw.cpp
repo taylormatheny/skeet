@@ -467,16 +467,22 @@ void drawCircle(const Point & center, int radius)
  * Draw a single point on the screen, 2 pixels by 2 pixels
  *  INPUT point   The position of the dow
  *************************************************************************/
-void drawDot(const Point & point)
+void drawDot(const Point & point/*, int red, int green, int blue*/)
 {
 	// Get ready, get set...
 	glBegin(GL_POINTS);
+
+	// Setting colors of dot
+	//glColor3f(red, green, blue);
 
 	// Go...
 	glVertex2f(point.getX(), point.getY());
 	glVertex2f(point.getX() + 1, point.getY());
 	glVertex2f(point.getX() + 1, point.getY() + 1);
 	glVertex2f(point.getX(), point.getY() + 1);
+
+	// reset to white
+	//glColor3f(1, 1, 1);
 
 	// Done!  OK, that was a bit too dramatic
 	glEnd();
@@ -636,6 +642,266 @@ void drawColoredCircle(const Point & center, float radius, float r, float g, flo
 	// complete drawing
 	glColor3f(1.0, 1.0, 1.0); // reset to white
 	glEnd();
+}
+
+void drawEevee(const Point & center)
+{
+	struct PT
+	{
+		int x;
+		int y;
+	};
+
+	const PT pointsEeveeOutline[] =
+	{
+		{ 8, 8 },{ 7, 8 },{ 6, 7 },{ 5, 7 },{ 4, 6 },
+		{ 4, 5 },{ 3, 5 },{ 2, 5 },{ 1, 5 },{ 0, 5 },
+		{ 1, 4 },{ -1, 3 },{ -1, 6 },{ -2, 6 },{ -2, 4 },
+		{ -2, 3 },{ -2, 1 },{ -2, 0 },{ -2, -1 },{ -3, 7 },
+		{ -3, 5 },{ -3, 2 },{ -4, 7 },{ -4, 5 },{ -4, 4 },
+		{ -4, 3 },{ -4, 2 },{ -5, 7 },{ -5, 6 },{ -5, 5 },
+		{ -5, 1 },{ -5, 0 },{ -6, 6 },{ -7, 7 },{ -8, 7 },
+		{ -8, 6 },{ -8, 5 },{ -8, 4 },{ -8, 3 },{ -7, 2 },
+		{ -7, 1 },{ -6, 0 },{ -6, -1 },{ -6, -2 },{ -6, -3 },
+		{ -6, -4 },{ -5, -5 },{ -4, -5 },{ -4, -1 },{ -3, -2 },
+		{ -3, -4 },{ -2, -3 },{ -2, -4 },{ -2, -5 },{ -1, -2 },
+		{ -1, -4 },{ -1, -6 },{ -1, -7 },{ 0, -2 },{ 0, -5 },
+		{ 0, -8 },{ 1, 1 },{ 1, 0 },{ 1, -1 },{ 1, -3 },
+		{ 1, -5 },{ 1, -8 },{ 2, 1 },{ 2, -1 },{ 2, -3 },
+		{ 2, -5 },{ 2, -6 },{ 2, -8 },{ 3, -3 },{ 3, -5 },
+		{ 3, -7 },{ 4, -3 },{ 4, -5 },{ 4, -7 },{ 5, -2 },
+		{ 5, -4 },{ 5, -5 },{ 5, -6 },{ 6, 3 },{ 6, -2 },
+		{ 6, -3 },{ 7, 5 },{ 7, 4 },{ 7, 2 },{ 7, 1 },
+		{ 7, 0 },{ 7, -1 },{ 8, 7 },{ 8, 6 }
+	};
+
+	const PT pointsEeveeBrown[] =
+	{
+		{ 6, 4 },{ 6, 5 },{ 5, 5 },{ 5, 6 },{ 4, -1 },
+		{ 4, -2 },{ 4, -6 },{ 3, 0 },{ 3, -1 },{ 3, -2 },
+		{ 3, -6 },{ 2, -2 },{ 1, 3 },{ 1, 2 },{ 1, -2 },
+		{ 1, -6 },{ 1, -7 },{ 0, 3 },{ 0, 2 },{ 0, 1 },
+		{ 0, 0 },{ 0, -1 },{ 0, -6},{ -1, 2 },{ -1, 1 },
+	    { -1, 0 },{ -1, -1 },{ -1, -5 },{ 2, 2 },{ 3, 4 },
+		{ 3, 3 },{ 3, -3 },{ 4, 1 },{ 4, 0 },{ 4, -2 },
+		{ 4, -3 },{ 4, -4 },{ 5, 3 },{ 5, 2 },{ 5, -1 },
+		{ 5, -2 },{ 5, -3 },{ 5, -4 },{ 6, 2 },{ 6, 1 },
+		{ -3, -3 },{ -4, -2 },{ -4, -3 },{ -4, -4 },{ -5, -1 },
+		{ -5, -2 },{ -5, -3 },{ -5, -4 }
+	};
+
+	const PT pointsEeveeTan[] =
+	{
+		{ 7, 7 },{ 7, 6 },{ 6, 6 },{ 6, 2 },{ 6, 1 },
+		{ 6, 0 },{ 6, -1 },{ 5, 4 },{ 5, 3 },{ 5, 2 },
+		{ 5, 1 },{ 5, 0 },{ 5, -1 },{ 4, 4 },{ 4, 3 },
+		{ 4, 2 },{ 4, 1 },{ 4, 0 },{ 3, 4 },{ 3, 3 },
+		{ 3, 2 },{ 3, 1 },{ 2, 4 },{ 2, 3 },{ 2, 2 },
+		{ 2, -7 },{ 0, 4 },{ 0, -7 },{ -1, 4 },{ -1, 5 },
+		{ -2, 5 },{ -3, 6 },{ -4, 6 }
+	};
+
+	const PT pointsEeveeWhite[] =
+	{
+		{ 5, -3 },{ 4, -4 },{ 3, -4 },{ 2, 0 },{ 2, -4 },
+		{ 1, -4 },{ 0, -3 },{ 0, -4 },{ -1, -3 },{ -2, -2 },
+		{ -3, -1 },{ -3, 0 },{ -3, 1 },{ -5, 4 },{ -6, 5 },
+		{ -6, 4 },{ -6, 3 },{ -7, 6 },{ -7, 5 },{ -7, 4 },
+		{ -7, 3 }
+	};
+
+	//   { 0, 0 },{ 0, 0 },{ 0, 0 },{ 0, 0 },{ 0, 0 },
+	// dark brown    0.54, 0.33, 0.14
+	// light brown   0.95, 0.47, 0.2
+	// white         1, 1, 1
+	// black         0, 0, 0
+
+	glColor3f(0.95, 0.47, 0.2);
+	for (int i = 0; i < sizeof(pointsEeveeTan) / sizeof(PT); i++)
+	{
+		drawDot(Point((center.getX() + pointsEeveeTan[i].x),
+			(center.getY() + pointsEeveeTan[i].y)));
+	}
+
+	glColor3f(1, 1, 1);
+	for (int i = 0; i < sizeof(pointsEeveeWhite) / sizeof(PT); i++)
+	{
+		drawDot(Point((center.getX() + pointsEeveeWhite[i].x),
+			(center.getY() + pointsEeveeWhite[i].y)));
+	}
+
+	glColor3f(0.54, 0.33, 0.14);
+	for (int i = 0; i < sizeof(pointsEeveeBrown) / sizeof(PT); i++)
+	{
+		drawDot(Point((center.getX() + pointsEeveeBrown[i].x),
+			(center.getY() + pointsEeveeBrown[i].y)));
+	}
+
+	glColor3f(0, 0, 0);
+	for (int i = 0; i < sizeof(pointsEeveeOutline) / sizeof(PT); i++)
+	{
+		drawDot(Point((center.getX() + pointsEeveeOutline[i].x), 
+			(center.getY() + pointsEeveeOutline[i].y)));
+	}
+
+	
+	/*
+	drawLine(Point((center.getX() + 8), (center.getY() + 8)),
+		Point((center.getX() + 8), (center.getY() + 6)), 0, 0, 0);
+	drawDot(Point((center.getX() + 7), (center.getY() + 8)), 0, 0, 0);
+	*/
+
+	glColor3f(1, 1, 1);
+}
+
+void drawLucario(const Point & center)
+{
+	struct PT
+	{
+		int x;
+		int y;
+	};
+
+	const PT lucarioBlack[] =
+	{
+		{ 8, 1 },{ 8, 0 },{ 7, 2 },{ 7, 0 },{ 7, -1 },
+		{ 6, 4 },{ 6, 3 },{ 6, 2 },{ 6, -1 },{ 5, 9 },
+		{ 5, 8 },{ 5, 7 },{ 5, 6 },{ 5, 5 },{ 5, 0 },
+		{ 5, -2 },{ 4, 10 },{ 4, 7 },{ 4, 6 },{ 4, -2 },
+		{ 3, 9 },{ 3, 5 },{ 3, 1 },{ 3, -2 },{ 3, -3 },
+		{ 3, -4 },{ 4, -5 },{ 4, -6 },{ 3, -7 },{ 3, -8 },
+		{ 2, 8 },{ 2, 7 },{ 2, 6 },{ 2, 2 },{ 2, -2 },
+		{ 2, -4 },{ 2, -5 },{ 2, -8 },{ 1, 8 },{ 1, 6 },
+		{ 1, 5 },{ 1, 3 },{ 1, -2 },{ 1, -5 },{ 1, -6 },
+		{ 1, -7 },{ 0, 9 },{ 0, -1 },{ 0, -2 },{ 0, -3 },
+		{ 0, -5 },{ 0, -6 },{ 0, -8 },{ -1, 8 },{ -1, 7 },
+		{ -1, 6 },{ -1, 0 },{ -1, -1 },{ -1, -4 },{ -1, -5 },
+		{ -1, -8 },{ -2, 5 },{ -2, 4 },{ -2, 3 },{ -2, 2 },
+		{ -2, 1 },{ -2, 0 },{ -2, -3 },{ -2, -5 },{ -2, -9 },
+		{ -2, -10 },{ -3, 5 },{ -3, 3 },{ -3, 1 },{ -3, -1 },
+		{ -3, -4 },{ -3, -5 },{ -3, -6 },{ -3, -7 },{ -3, -10 },
+		{ -4, 5 },{ -4, 3 },{ -4, 0 },{ -4, -2 },{ -4, -6 },
+		{ -4, -8 },{ -4, -9 },{ -5, 4 },{ -5, 3 },{ -5, 2 },
+		{ -5, 0 },{ -5, -3 },{ -5, -6 },{ -6, 2 },{ -6, 1 },
+		{ -6, -2 },{ -6, -4 },{ -6, -5 },{ -7, -2 },{ -7, -3 }
+	};
+
+	const PT lucarioGrey[] = 
+	{
+		{ 7, 1 },{ 6, 1 },{ 6, 0 },{ 5, 3 },{ 5, 2 },
+		{ 5, 1 },{ 4, 4 },{ 4, 3 },{ 4, 2 },{ 4, 1 },
+		{ 4, 0 },{ 3, 4 },{ 3, 2 },{ 2, -7 },{ 0, 3 },
+		{ 0, 2 },{ 0, 1 },{ -1, 4 },{ -1, 3 },{ -1, 2 },
+		{ -1, 1 },{ -1, -2 },{ -1, -3 },{ -2, -1 },{ -2, -8 },
+		{ -3, 4 },{ -3, 2 },{ -3, -8 },{ -3, -9 },{ -4, 4 },
+		{ -4, 2 },{ -4, 1 },{ -4, -4 },{ -4, -5 },{ -5, 1 },
+		{ -5, -5 }
+	};
+
+	const PT lucarioLightBlue[] =
+	{
+		{ 5, 4 },{ 4, 5 },{ 4, -1 },{ 3, 3 },{ 3, -1 },
+		{ 2, 4 },{ 2, -1 },{ 1, 7 },{ 1, 4 },{ 1, 0 },
+		{ 0, 8 },{ 0, 7 },{ 0, 6 },{ 0, 5 },{ 0, 4 },
+		{ 0, 0 },{ 0, -7 },{ -1, -7 },{ -2, -2 },{ -2, -4 },
+		{ -2, -6 },{ -3, 0 },{ -3, -2 }
+	};
+
+	const PT lucarioBlue[] =
+	{
+		{ 5, -1 },{ 4, 9 },{ 3, 8 },{ 3, 7 },{ 3, -5 },
+		{ 3, -6 },{ 2, 5 },{ 2, 3 },{ 1, -1 },{ -1, 5 },
+		{ -1, -6 },{ -2, -7 },{ -4, -3 }
+	};
+
+	const PT lucarioDarkBlue[] =
+	{
+		{ 4, 8 },{ 3, 6 },{ 2, -6 },{ -3, -3 }
+	};
+
+	const PT lucarioOther[] =
+	{
+		{ 2, -3 },{ 1, -3 },{ 1, -4 },{ 0, -4 }, //Yellow 0.937,0.909,0.525
+		{ 3, 0 },{ 2, 0 },{ 2, 1 },              //Red    0.925,0.109,0.141
+		{ 1, 2 },{ 1, 1 },{ -5, -4 },{ -6, -3 }  //White  1,1,1
+	};
+
+	/*
+	const PT lucarioYellow[] = 
+	{
+		{ 2, -3 },{ 1, -3 },{ 1, -4 },{ 0, -4 }
+	};
+
+	const PT lucarioRed[] =
+	{
+		{ 3, 0 },{ 2, 0 },{ 2, 1 }
+	};
+
+	const PT lucarioWhite[] =
+	{
+		{ 1, 2 },{ 1, 1 },{ -5, -4 },{ -6, -3 }
+	};
+	*/
+
+	//   { 0, 0 },{ 0, 0 },{ 0, 0 },{ 0, 0 },{ 0, 0 },
+
+	glColor3f(0, 0, 0);
+	for (int i = 0; i < sizeof(lucarioBlack) / sizeof(PT); i++)
+	{
+		drawDot(Point((center.getX() + lucarioBlack[i].x),
+			(center.getY() + lucarioBlack[i].y)));
+	}
+
+	glColor3f(0.458, 0.498, 0.549);
+	for (int i = 0; i < sizeof(lucarioGrey) / sizeof(PT); i++)
+	{
+		drawDot(Point((center.getX() + lucarioGrey[i].x),
+			(center.getY() + lucarioGrey[i].y)));
+	}
+
+	glColor3f(0.388, 0.58, 0.937);
+	for (int i = 0; i < sizeof(lucarioBlue) / sizeof(PT); i++)
+	{
+		drawDot(Point((center.getX() + lucarioBlue[i].x),
+			(center.getY() + lucarioBlue[i].y)));
+	}
+
+	//glColor3f(0., 0., 0.);
+	for (int i = 0; i < sizeof(lucarioOther) / sizeof(PT); i++)
+	{
+		switch (i)
+		{
+			case 0:
+				glColor3f(0.937, 0.909, 0.525);
+				break;
+			case 4:
+				glColor3f(0.925, 0.109, 0.141);
+				break;
+			case 7:
+				glColor3f(1, 1, 1);
+				break;
+			default:
+				break;
+		}
+		drawDot(Point((center.getX() + lucarioOther[i].x),
+			(center.getY() + lucarioOther[i].y)));
+	}
+
+	glColor3f(0, 0, 0.78);
+	for (int i = 0; i < sizeof(lucarioDarkBlue) / sizeof(PT); i++)
+	{
+		drawDot(Point((center.getX() + lucarioDarkBlue[i].x),
+			(center.getY() + lucarioDarkBlue[i].y)));
+	}
+
+	glColor3f(0, 0.749, 0.996);
+	for (int i = 0; i < sizeof(lucarioLightBlue) / sizeof(PT); i++)
+	{
+		drawDot(Point((center.getX() + lucarioLightBlue[i].x),
+			(center.getY() + lucarioLightBlue[i].y)));
+	}
+
+	glColor3f(1, 1, 1);
 }
 
 void drawAngryBird(const Point & center)

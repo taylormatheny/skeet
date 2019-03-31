@@ -94,7 +94,7 @@ void drawLanderFlames(const Point & point,
  * DRAW DOT
  * Draw a single point on the screen, 2 pixels by 2 pixels
  *************************************************************************/
-void drawDot(const Point & point);
+void drawDot(const Point & point/*, int red, int green, int blue*/);
 
 /************************************************************************
  * DRAW Sacred Bird
@@ -110,6 +110,9 @@ void drawToughBird(const Point & center, float radius, int hits);
 
 void drawAngryBird(const Point & center);
 void drawColoredCircle(const Point & center, float radius, float r, float g, float b);
+
+void drawEevee(const Point & center);
+void drawLucario(const Point & center);
 
 /************************************************************************
  * DRAW Ship
