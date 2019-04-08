@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include "variables.h"
 #include <stdio.h> // for printf
+
 #pragma comment(lib, "WS2_32")
 #pragma comment(lib, "winmm")
 
